@@ -110,7 +110,106 @@ function clearError(input) {
     input.classList.remove('error');
 }
 
-// Initialize form validation for contact form
+// Animate Stats Counter
+function animateCounter() {
+    const statNumbers = document.querySelectorAll('.stat-number');
+    if (!statNumbers.length) return;
+
+    const observerOptions = {
+        threshold: 0.5
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const target = entry.target;
+                const count = parseInt(target.getAttribute('data-count'));
+                let current = 0;
+                const increment = Math.ceil(count / 50);
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= count) {
+                        current = count;
+                        clearInterval(timer);
+                    }
+                    target.textContent = current;
+                }, 30);
+                observer.unobserve(target);
+            }
+        });
+    }, observerOptions);
+
+    statNumbers.forEach(stat => {
+        observer.observe(stat);
+    });
+}
+
+// FAQ Accordion
+function initFAQ() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    if (!faqItems.length) return;
+
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            const isActive = item.classList.contains('active');
+            
+            // Close all FAQ items
+            faqItems.forEach(faq => {
+                faq.classList.remove('active');
+            });
+            
+            // Open clicked item if it wasn't active before
+            if (!isActive) {
+                item.classList.add('active');
+            }
+        });
+    });
+}
+
+// Testimonial Carousel
+function initTestimonialCarousel() {
+    const testimonials = document.querySelectorAll('.testimonial-item');
+    const indicators = document.querySelectorAll('.indicator');
+    if (!testimonials.length || !indicators.length) return;
+
+    let currentIndex = 0;
+    let timer;
+
+    function showTestimonial(index) {
+        testimonials.forEach(item => {
+            item.classList.remove('active');
+        });
+        indicators.forEach(indicator => {
+            indicator.classList.remove('active');
+        });
+
+        testimonials[index].classList.add('active');
+        indicators[index].classList.add('active');
+    }
+
+    function nextTestimonial() {
+        currentIndex = (currentIndex + 1) % testimonials.length;
+        showTestimonial(currentIndex);
+    }
+
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            currentIndex = index;
+            showTestimonial(currentIndex);
+            clearInterval(timer);
+            timer = setInterval(nextTestimonial, 5000);
+        });
+    });
+
+    // Auto cycle through testimonials
+    timer = setInterval(nextTestimonial, 5000);
+}
+
+// Initialize form validation for contact form and all other functions
 document.addEventListener('DOMContentLoaded', () => {
     validateForm('contact-form');
+    animateCounter();
+    initFAQ();
+    initTestimonialCarousel();
 }); 
